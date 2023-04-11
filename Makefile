@@ -1,12 +1,14 @@
+REPO_LIBS?=https://github.com/falcosecurity/libs.git
+
 DBFLAGS=-g -O0 -DDEBUG
 NDBFLAGS=-O2
 CFLAGS=-Wall -Werror
 OUTDIR=build
 OUTPUT=$(OUTDIR)/scap_read
 
-FALCO_LIBS=$(OUTDIR)/falco_libs
-INCLUDES+=-I $(FALCO_LIBS)/userspace/libscap
-INCLUDES+=-I $(FALCO_LIBS)/userspace/libscap/engine/savefile
+BUILD_LIBS=$(OUTDIR)/libs
+INCLUDES+=-I $(BUILD_LIBS)/userspace/libscap
+INCLUDES+=-I $(BUILD_LIBS)/userspace/libscap/engine/savefile
 
 CFILES=scap_read.c read_proclist.c
 
@@ -15,14 +17,14 @@ all: debug
 $(OUTDIR):
 	mkdir -p $(OUTDIR)
 
-debug: $(CFILES) $(OUTDIR) $(FALCO_LIBS)
+debug: $(CFILES) $(OUTDIR) $(BUILD_LIBS)
 	gcc $(CFLAGS) $(DBFLAGS) $(INCLUDES) -o $(OUTPUT) $(CFILES)
 
-release: $(CFILES) $(OUTDIR) $(FALCO_LIBS)
+release: $(CFILES) $(OUTDIR) $(BUILD_LIBS)
 	gcc $(CFLAGS) $(NDBFLAGS) $(INCLUDES) -o $(OUTPUT) $(CFILES)
 
-$(FALCO_LIBS):
-	git clone https://github.com/falcosecurity/libs.git $(FALCO_LIBS)
+$(BUILD_LIBS):
+	git clone $(REPO_LIBS) $(BUILD_LIBS)
 
 clean:
 	-rm -rf $(OUTPUT) $(OUTDIR)
