@@ -418,7 +418,7 @@ int32_t scap_read(const char* filename)
 			handle_proc_list(&bh, readbuf, read_len);
 			break;
 		default:
-			// Carry on
+			fprintf(stdout, "Neither EV nor PL, block type: %d, carry on\n", bh.block_type);
 		}
 
 		//
