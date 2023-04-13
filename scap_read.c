@@ -326,7 +326,7 @@ int32_t scap_read(const char* filename)
 		       sh.byte_order_magic,
 		       sh.major_version,
 		       sh.minor_version);
-		printf("bt=%u\n", bt);
+		printf("block trailer=%u\n", bt);
 
 		// Do some sanity checking on the header
 		if (bh.block_type != SHB_BLOCK_TYPE)
@@ -349,6 +349,8 @@ int32_t scap_read(const char* filename)
 	// Read all blocks in the capture
 	while (1)
 	{
+		printf("\n");
+
 		//
 		// Read block header
 		//
@@ -366,9 +368,16 @@ int32_t scap_read(const char* filename)
 		// Read the whole block up to the trailer
 		//
 		int expected_len = bh.block_total_length - sizeof(bh) - sizeof(bt);
+		if (expected_len < 0)
+		{
+			fprintf(stderr, "Expected len cannot be negative %d, block_total_len=%u, sizeof(bh)=%lu, sizeof(bt)=%lu\n", expected_len, bh.block_total_length, sizeof(bh), sizeof(bt));
+			ret = 1;
+			goto done;
+		}
 		if (expected_len > buf_len)
 		{
 			// We're going to need a bigger boat
+			fprintf(stderr, "Need a bigger buffer, expected len %d vs buffer len %u\n", expected_len, buf_len);
 			free(readbuf);
 			readbuf = malloc(expected_len);
 			if (!readbuf)
@@ -395,12 +404,14 @@ int32_t scap_read(const char* filename)
 		case EVF_BLOCK_TYPE_V2:
 		case EVF_BLOCK_TYPE_V2_LARGE:
 			++num_events;
+			fprintf(stdout, "EVFlags block\n");
 			handle_event(&bh, readbuf, read_len);
 			break;
 		case EV_BLOCK_TYPE:
 		case EV_BLOCK_TYPE_V2:
 		case EV_BLOCK_TYPE_V2_LARGE:
 			++num_events;
+			fprintf(stdout, "EVNoFlags block\n");
 			handle_event_no_flags(&bh, readbuf, read_len);
 			break;
 		case PL_BLOCK_TYPE_V1:
@@ -415,10 +426,11 @@ int32_t scap_read(const char* filename)
 		case PL_BLOCK_TYPE_V1_INT:
 		case PL_BLOCK_TYPE_V2_INT:
 		case PL_BLOCK_TYPE_V3_INT:
+			fprintf(stdout, "ProcList block\n");
 			handle_proc_list(&bh, readbuf, read_len);
 			break;
 		default:
-			fprintf(stdout, "Neither EV nor PL, block type: %d, carry on\n", bh.block_type);
+			fprintf(stdout, "Neither EV nor PL block, carry on\n");
 		}
 
 		//
