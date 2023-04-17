@@ -1,4 +1,5 @@
 REPO_LIBS?=https://github.com/falcosecurity/libs.git
+REPO_BRANCH?=master
 
 DBFLAGS=-g -O0 -DDEBUG
 NDBFLAGS=-O2
@@ -24,7 +25,7 @@ release: $(CFILES) $(OUTDIR) $(BUILD_LIBS)
 	gcc $(CFLAGS) $(NDBFLAGS) $(INCLUDES) -o $(OUTPUT) $(CFILES)
 
 $(BUILD_LIBS):
-	git clone $(REPO_LIBS) $(BUILD_LIBS)
+	git clone $(REPO_LIBS) -b $(REPO_BRANCH) $(BUILD_LIBS)
 
 clean:
 	-rm -rf $(OUTPUT) $(OUTDIR)
