@@ -408,6 +408,7 @@ int32_t scap_read(const char* filename)
 			handle_event(&bh, readbuf, read_len);
 			break;
 		case EV_BLOCK_TYPE:
+		case EV_BLOCK_TYPE_INT:
 		case EV_BLOCK_TYPE_V2:
 		case EV_BLOCK_TYPE_V2_LARGE:
 			++num_events;
@@ -429,8 +430,27 @@ int32_t scap_read(const char* filename)
 			fprintf(stdout, "ProcList block\n");
 			handle_proc_list(&bh, readbuf, read_len);
 			break;
+		case MI_BLOCK_TYPE:
+		case MI_BLOCK_TYPE_INT:
+			fprintf(stdout, "Machine Info block, carry on\n");
+			break;
+		case FDL_BLOCK_TYPE:
+		case FDL_BLOCK_TYPE_INT:
+		case FDL_BLOCK_TYPE_V2:
+			fprintf(stdout, "FD List block, carry on\n");
+			break;
+		case IL_BLOCK_TYPE:
+		case IL_BLOCK_TYPE_INT:
+		case IL_BLOCK_TYPE_V2:
+			fprintf(stdout, "Interface List block, carry on\n");
+			break;
+		case UL_BLOCK_TYPE:
+		case UL_BLOCK_TYPE_INT:
+		case UL_BLOCK_TYPE_V2:
+			fprintf(stdout, "User List block, carry on\n");
+			break;
 		default:
-			fprintf(stdout, "Neither EV nor PL block, carry on\n");
+			fprintf(stdout, "Unknown block type, carry on\n");
 		}
 
 		//
